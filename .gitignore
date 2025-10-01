@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: SSPL-1.0
+__pycache__/
+*.pyc
+*.pyo
+*.DS_Store
+.env
+.venv/
+dist/
+build/
+*.log

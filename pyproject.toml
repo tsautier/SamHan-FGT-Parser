@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: SSPL-1.0
+[project]
+name = "fgt-webparser"
+version = "0.1.0"
+description = "Web FortiGate config parser (original implementation) — SSPL-1.0"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn>=0.30.0",
+  "python-multipart>=0.0.9",
+  "pydantic>=2.7.0",
+  "pyyaml>=6.0.1"
+]
+
+[tool.uvicorn]
+factory = false
+host = "0.0.0.0"
+port = 8080
