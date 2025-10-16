@@ -1,4 +1,4 @@
-# SamHan-fgt-parser (Rust GUI)
+# SamHan-FGT-Parser (Rust GUI)
 
 **Cross‑platform, GUI‑only FortiGate config parser** built in Rust with `egui/eframe`.
 Runs on macOS, Linux, and Windows. Offline, no server.
