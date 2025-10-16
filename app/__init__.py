@@ -1,1 +1,0 @@
-# SPDX-License-Identifier: SSPL-1.0
