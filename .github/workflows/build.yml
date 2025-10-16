@@ -1,18 +1,66 @@
 name: build-release
+
 on:
-  push: { branches: [ main ] }
-  pull_request: { branches: [ main ] }
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   build:
+    name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cargo build --release
-      - uses: actions/upload-artifact@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      # --- Linux deps (OpenGL/X11/ALSA) pour eframe/glow ---
+      - name: Install Linux build deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config \
+            libx11-dev libxi-dev libxcursor-dev libxrandr-dev libxinerama-dev \
+            libgl1-mesa-dev libasound2-dev
+
+      # --- macOS: ensure CLT ---
+      - name: Ensure Xcode Command Line Tools
+        if: matrix.os == 'macos-latest'
+        run: |
+          xcode-select -p || xcode-select --install || true
+
+      # --- Windows: MSVC env (MSBuild non requis, rustc msvc suffit) ---
+      - name: Setup MSVC ENV
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Write-Host "Using Windows MSVC toolchain (installed with runner)."
+
+      - name: Cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Build (release)
+        run: cargo build --release
+
+      - name: Clippy (warnings as errors on PR only)
+        if: github.event_name == 'pull_request'
+        run: cargo clippy -- -D warnings
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: SamHan-fgt-parser-${{ runner.os }}
           path: |
