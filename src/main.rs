@@ -21,9 +21,15 @@ struct AppState {
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions::default();
     let state = Arc::new(Mutex::new(AppState::default()));
-    eframe::run_native("SamHan-fgt-parser", options, Box::new(move |_cc| {
-        Box::new(MyApp { state: state.clone() })
-    }))
+    eframe::run_native(
+        "SamHan-fgt-parser",
+        options,
+        Box::new(move |_cc| -> Result<_, Box<dyn std::error::Error + Send + Sync>> {
+            Ok(Box::new(MyApp {
+                state: state.clone(),
+            }))
+        }),
+    )
 }
 
 struct MyApp { state: Arc<Mutex<AppState>> }

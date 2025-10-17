@@ -4,7 +4,10 @@ use std::collections::BTreeMap;
 
 fn as_list(v: &Value) -> Vec<String> {
     match v {
-        Value::Array(a) => a.iter().map(|x| x.as_str().unwrap_or(&x.to_string()).to_string()).collect(),
+        Value::Array(a) => a
+            .iter()
+            .map(|x| x.as_str().map(|s| s.to_string()).unwrap_or_else(|| x.to_string()))
+            .collect(),
         Value::Null => vec![],
         Value::String(s) => vec![s.clone()],
         other => vec![other.to_string()],
@@ -113,7 +116,15 @@ fn flatten(v: &Value) -> BTreeMap<String, String> {
             Value::Bool(b) => { out.insert(p.to_string(), b.to_string()); }
             Value::Number(n) => { out.insert(p.to_string(), n.to_string()); }
             Value::String(s) => { out.insert(p.to_string(), s.clone()); }
-            Value::Array(a) => { out.insert(p.to_string(), a.iter().map(|x| x.as_str().unwrap_or(&x.to_string())).collect::<Vec<_>>().join(" | ")); }
+            Value::Array(a) => {
+                out.insert(
+                    p.to_string(),
+                    a.iter()
+                        .map(|x| x.as_str().map(|s| s.to_string()).unwrap_or_else(|| x.to_string()))
+                        .collect::<Vec<_>>()
+                        .join(" | "),
+                );
+            }
             Value::Object(obj) => {
                 for (k, vv) in obj {
                     let key = if p.is_empty() { k.clone() } else { format!("{p}.{k}") };
